@@ -1,15 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
-  StoredShareRecord,
+  type StoredShareRecord,
   generateRandomSlug,
   normalizeEditToken,
   sanitizeSlug,
-} from '../lib/shareHelpers';
-import { isBlobConfigured, readShareFromBlob, writeShareToBlob } from '../lib/blobShareStore';
+} from '../lib/shareHelpers.ts';
+import { isBlobConfigured, readShareFromBlob, writeShareToBlob } from '../lib/blobShareStore.ts';
 
 /**
  * POST /api/share-save
  * Allocates a slug and (when payload is present) writes the surprise to Blob.
+ * If Blob store is not configured, succeeds with storage: 'client' so the link works via URL encoding.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -18,14 +19,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    if (!isBlobConfigured()) {
-      res.status(503).json({
-        error:
-          'Share storage is not configured. Connect the Blob store to this project (Production + Preview), then Redeploy.',
-      });
-      return;
-    }
-
     const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) as {
       slug?: string;
       editToken?: string;
@@ -42,16 +35,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let slug = sanitizeSlug(body?.slug);
     if (!slug) {
       slug = generateRandomSlug();
-      for (let i = 0; i < 8; i++) {
-        const existing = await readShareFromBlob(slug);
-        if (!existing) break;
-        slug = generateRandomSlug();
-      }
     } else if (slug.length < 2) {
       res.status(400).json({
         error: 'Custom link name must be at least 2 characters (letters, numbers, or hyphens).',
       });
       return;
+    }
+
+    if (!isBlobConfigured()) {
+      // Graceful fallback: return 200 so the frontend generates the self-contained link
+      res.status(200).json({
+        slug,
+        savedAt: new Date().toISOString(),
+        storage: 'client',
+        notice: 'Vercel Blob is not connected; surprise will be loaded directly from the link.',
+      });
+      return;
+    }
+    if (!slug) {
+      slug = generateRandomSlug();
+      for (let i = 0; i < 8; i++) {
+        const existing = await readShareFromBlob(slug);
+        if (!existing) break;
+        slug = generateRandomSlug();
+      }
     }
 
     const existing = await readShareFromBlob(slug);

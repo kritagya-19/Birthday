@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sanitizeSlug } from '../lib/shareHelpers';
-import { isBlobConfigured, readShareFromBlob } from '../lib/blobShareStore';
+import { sanitizeSlug } from '../lib/shareHelpers.ts';
+import { isBlobConfigured, readShareFromBlob } from '../lib/blobShareStore.ts';
 
 /**
  * GET /api/share-get?slug=... — public partner view payload (no editToken).
@@ -13,9 +13,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     if (!isBlobConfigured()) {
-      res.status(503).json({
+      res.status(404).json({
         error:
-          'Share storage is not configured on this deployment. Connect Vercel Blob and redeploy.',
+          'Surprise link not found on server. Please use the full share link provided by your partner.',
       });
       return;
     }

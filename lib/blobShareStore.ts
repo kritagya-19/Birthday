@@ -1,13 +1,16 @@
 import { list, put } from '@vercel/blob';
 import {
-  StoredShareRecord,
+  type StoredShareRecord,
   sanitizeSlug,
   shareBlobPathname,
-} from './shareHelpers';
+} from './shareHelpers.ts';
 
 /** True when a Blob store is connected (legacy RW token or current OIDC store id). */
 export function isBlobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+      (process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN)
+  );
 }
 
 export function assertBlobConfigured(): void {

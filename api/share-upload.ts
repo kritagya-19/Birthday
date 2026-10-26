@@ -4,8 +4,8 @@ import {
   normalizeEditToken,
   sanitizeSlug,
   shareBlobPathname,
-} from '../lib/shareHelpers';
-import { readShareFromBlob } from '../lib/blobShareStore';
+} from '../lib/shareHelpers.ts';
+import { readShareFromBlob } from '../lib/blobShareStore.ts';
 
 /**
  * Client-side upload token endpoint for large surprise payloads (photos + music).

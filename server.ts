@@ -47,7 +47,7 @@ async function startServer() {
     res.json({ storage: 'fs', blobConfigured: false });
   });
 
-  app.post('/api/shares', (req: Request, res: Response) => {
+  app.post(['/api/shares', '/api/share-save'], (req: Request, res: Response) => {
     try {
       const body = req.body as {
         slug?: string;
@@ -125,9 +125,9 @@ async function startServer() {
     }
   });
 
-  app.get('/api/shares/:slug', (req: Request, res: Response) => {
+  app.get(['/api/shares/:slug', '/api/share-get'], (req: Request, res: Response) => {
     try {
-      const slug = sanitizeSlug(req.params.slug);
+      const slug = sanitizeSlug(req.params.slug || req.query.slug);
       if (!slug) {
         res.status(400).json({ error: 'Invalid surprise link.' });
         return;
