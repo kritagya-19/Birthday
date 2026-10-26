@@ -1,0 +1,830 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-bubble {
+    font-family: 'Grandstander', 'DynaPuff', 'Fredoka', cursive, sans-serif;
+  }
+  .font-sans-clean {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .font-handwriting {
+    font-family: 'Caveat', 'Gaegu', cursive;
+  }
+}
+
+/* Scrapbook Gingham Patterns */
+.bg-gingham-blue {
+  background-color: #faf6ea;
+  background-image: 
+    linear-gradient(90deg, rgba(162, 203, 235, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(162, 203, 235, 0.55) 50%, transparent 50%);
+  background-size: 88px 88px;
+}
+
+.bg-gingham-pink {
+  background-color: #fdf6f4;
+  background-image: 
+    linear-gradient(90deg, rgba(247, 182, 196, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(247, 182, 196, 0.55) 50%, transparent 50%);
+  background-size: 88px 88px;
+}
+
+.bg-gingham-matcha {
+  background-color: #f8faf4;
+  background-image: 
+    linear-gradient(90deg, rgba(178, 212, 169, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(178, 212, 169, 0.55) 50%, transparent 50%);
+  background-size: 88px 88px;
+}
+
+.bg-gingham-lavender {
+  background-color: #f8f6fc;
+  background-image: 
+    linear-gradient(90deg, rgba(205, 185, 238, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(205, 185, 238, 0.55) 50%, transparent 50%);
+  background-size: 88px 88px;
+}
+
+.bg-gingham-butter {
+  background-color: #fffef2;
+  background-image: 
+    linear-gradient(90deg, rgba(246, 221, 148, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(246, 221, 148, 0.55) 50%, transparent 50%);
+  background-size: 88px 88px;
+}
+
+/* Subtle paper texture overlay */
+.paper-texture {
+  background-image: radial-gradient(#000000 0.4px, transparent 0.4px);
+  background-size: 8px 8px;
+  opacity: 0.035;
+}
+
+/* Sticker 3D paper shadows */
+.sticker-shadow {
+  filter: drop-shadow(0px 2px 3px rgba(23, 44, 76, 0.12))
+          drop-shadow(3px 8px 16px rgba(23, 44, 76, 0.22));
+}
+
+.sticker-shadow-hover {
+  filter: drop-shadow(0px 4px 6px rgba(23, 44, 76, 0.14))
+          drop-shadow(6px 14px 22px rgba(23, 44, 76, 0.26));
+}
+
+.scallop-shadow {
+  filter: drop-shadow(0px 4px 10px rgba(32, 60, 95, 0.18))
+          drop-shadow(0px 1px 3px rgba(32, 60, 95, 0.1));
+}
+
+/* Floating animation for mouse pointer */
+@keyframes cuteBounce {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-3px, -4px);
+  }
+}
+
+.animate-cute-bounce {
+  animation: cuteBounce 2s ease-in-out infinite;
+}
+
+@keyframes flowerRotateClockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-flower-spin {
+  animation: flowerRotateClockwise 12s linear infinite;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+@keyframes scrapbookTiltSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg) translateY(-1px);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(6deg) translateY(-1px);
+  }
+}
+
+.animate-scrapbook-tilt {
+  animation: scrapbookTiltSway 2.8s ease-in-out infinite;
+  transform-origin: 50% 85%;
+  will-change: transform;
+}
+
+@keyframes gentleStarWobble {
+  0%, 100% {
+    transform: rotate(-3deg) scale(1);
+  }
+  50% {
+    transform: rotate(-1deg) scale(1.02);
+  }
+}
+
+.animate-star-wobble {
+  animation: gentleStarWobble 3.5s ease-in-out infinite;
+}
+
+@keyframes starTwinkleFloat {
+  0%, 100% {
+    transform: scale(1) rotate(0deg) translateY(0px);
+  }
+  25% {
+    transform: scale(1.06) rotate(-3deg) translateY(-2px);
+  }
+  50% {
+    transform: scale(0.97) rotate(2deg) translateY(1px);
+  }
+  75% {
+    transform: scale(1.07) rotate(-1.5deg) translateY(-3px);
+  }
+}
+
+.animate-star-twinkle {
+  animation: starTwinkleFloat 3.2s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Smooth moving animation for Page 1 borders in a continuous loop:
+   1. Upper horizontal border moves towards right
+   2. Then vertical right border moves towards down side
+   3. Then bottom horizontal border moves towards left side
+   4. Then left vertical border moves towards upside
+   Loop duration: 2s (each phase 0.5s) - fast & energetic loop
+*/
+@keyframes borderTopRight {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  25% {
+    transform: translate(85.333px, 0px);
+  }
+  100% {
+    transform: translate(85.333px, 0px);
+  }
+}
+
+@keyframes borderRightDown {
+  0%, 25% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(0px, 81.714px);
+  }
+  100% {
+    transform: translate(0px, 81.714px);
+  }
+}
+
+@keyframes borderBottomLeft {
+  0%, 50% {
+    transform: translate(0px, 0px);
+  }
+  75% {
+    transform: translate(-85.333px, 0px);
+  }
+  100% {
+    transform: translate(-85.333px, 0px);
+  }
+}
+
+@keyframes borderLeftUp {
+  0%, 75% {
+    transform: translate(0px, 0px);
+  }
+  100% {
+    transform: translate(0px, -81.714px);
+  }
+}
+
+.animate-border-top-right {
+  animation: borderTopRight 2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.animate-border-right-down {
+  animation: borderRightDown 2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.animate-border-bottom-left {
+  animation: borderBottomLeft 2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.animate-border-left-up {
+  animation: borderLeftUp 2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+/* Surprise Box Opening Animations */
+@keyframes surpriseBoxWiggle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  15% {
+    transform: scale(1.06) rotate(-4deg);
+  }
+  30% {
+    transform: scale(1.06) rotate(4deg);
+  }
+  45% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  60% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  90% {
+    transform: scale(1.16) rotate(2deg);
+  }
+}
+
+.animate-surprise-wiggle {
+  animation: surpriseBoxWiggle 0.65s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes surpriseLidPop {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(-95px) rotate(-26deg) scale(1.1);
+  }
+  65% {
+    transform: translateY(-76px) rotate(-18deg) scale(1.04);
+  }
+  100% {
+    transform: translateY(-84px) rotate(-22deg) scale(1.06);
+    opacity: 0.98;
+  }
+}
+
+.animate-lid-pop {
+  animation: surpriseLidPop 0.85s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  transform-origin: bottom left;
+}
+
+@keyframes surprisePopOut {
+  0% {
+    transform: translateY(50px) scale(0.2);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-50px) scale(1.14);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-38px) scale(0.96);
+  }
+  100% {
+    transform: translateY(-42px) scale(1.02);
+    opacity: 1;
+  }
+}
+
+.animate-surprise-popout {
+  animation: surprisePopOut 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center bottom;
+}
+
+@keyframes sparkleBurst {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(1.3) rotate(70deg);
+  }
+  75% {
+    opacity: 0.9;
+    transform: translate(calc(var(--tx, 0px) * 1.15), calc(var(--ty, 0px) * 1.15)) scale(0.9) rotate(140deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(calc(var(--tx, 0px) * 1.25), calc(var(--ty, 0px) * 1.25)) scale(1.05) rotate(180deg);
+  }
+}
+
+.animate-sparkle-burst {
+  animation: sparkleBurst 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sunburstSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-sunburst {
+  animation: sunburstSpin 16s linear infinite;
+  transform-origin: center center;
+}
+
+/* Gentle floating in air animations for corner balloons (stays safely within page bounds) */
+@keyframes balloonFloatLeft {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  35% {
+    transform: translate(2px, 5px) rotate(-1.4deg);
+  }
+  70% {
+    transform: translate(1px, 2px) rotate(1deg);
+  }
+}
+
+@keyframes balloonFloatRight {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  35% {
+    transform: translate(-2px, 5px) rotate(1.4deg);
+  }
+  70% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+}
+
+.animate-balloon-left {
+  animation: balloonFloatLeft 5.2s ease-in-out infinite;
+  transform-origin: 30% 85%;
+  will-change: transform;
+}
+
+.animate-balloon-right {
+  animation: balloonFloatRight 5.8s ease-in-out infinite;
+  transform-origin: 70% 85%;
+  will-change: transform;
+}
+
+/* Talisman Evil Eye floating & breathing charm animation */
+@keyframes evilEyeCharmFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(27, 60, 110, 0.18));
+  }
+  25% {
+    transform: translateY(-3.5px) rotate(-3deg) scale(1.025);
+    filter: drop-shadow(0 7px 14px rgba(27, 60, 110, 0.24));
+  }
+  50% {
+    transform: translateY(1px) rotate(1deg) scale(0.99);
+    filter: drop-shadow(0 3px 8px rgba(27, 60, 110, 0.16));
+  }
+  75% {
+    transform: translateY(-2.5px) rotate(2.5deg) scale(1.02);
+    filter: drop-shadow(0 6px 13px rgba(27, 60, 110, 0.22));
+  }
+}
+
+.animate-evil-eye {
+  animation: evilEyeCharmFloat 3.8s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform, filter;
+}
+
+/* Continuous downward loop animation for Page 5 Birthday Tribute Filmstrip */
+@keyframes filmScrollDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+.animate-film-scroll-down {
+  animation: filmScrollDown 22s linear infinite;
+  will-change: transform;
+}
+
+/* Poppy breath-like breathing animation for Birthday Typography */
+@keyframes poppyBreath {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  25% {
+    transform: scale(1.08) translateY(-3px);
+  }
+  45% {
+    transform: scale(1.03) translateY(-1px);
+  }
+  65% {
+    transform: scale(1.06) translateY(-2px);
+  }
+  85% {
+    transform: scale(0.99) translateY(0.5px);
+  }
+}
+
+.animate-poppy-breath {
+  animation: poppyBreath 3.2s cubic-bezier(0.34, 1.3, 0.64, 1) infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Cute gentle scrapbook sticker animations for Page 8 Couple Date Proposal */
+@keyframes dateStickerFloatRight {
+  0%, 100% {
+    transform: translateY(0px) rotate(10deg) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) rotate(14deg) scale(1.03);
+  }
+}
+
+@keyframes dateStickerSwayLeft {
+  0%, 100% {
+    transform: translateY(0px) rotate(-9deg) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-4deg) scale(1.03);
+  }
+}
+
+@keyframes dateStickerTicketFlutter {
+  0%, 100% {
+    transform: translateY(0px) rotate(8deg) scale(1);
+  }
+  35% {
+    transform: translateY(-4px) rotate(4deg) scale(1.035);
+  }
+  70% {
+    transform: translateY(-1.5px) rotate(11deg) scale(1.01);
+  }
+}
+
+@keyframes dateStickerBouquetSway {
+  0%, 100% {
+    transform: translateY(0px) rotate(7deg) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) rotate(12deg) scale(1.03);
+  }
+}
+
+@keyframes dateStickerToastClink {
+  0%, 100% {
+    transform: translateY(0px) rotate(-7deg) scale(1);
+  }
+  40% {
+    transform: translateY(-4.5px) rotate(-2deg) scale(1.045);
+  }
+  75% {
+    transform: translateY(-1px) rotate(-9deg) scale(1.01);
+  }
+}
+
+@keyframes dateStickerHeartPop {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  45% {
+    transform: translateY(-4px) scale(1.14);
+  }
+}
+
+.animate-date-envelope {
+  animation: dateStickerFloatRight 3.4s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.animate-date-milkshake {
+  animation: dateStickerSwayLeft 3.1s ease-in-out infinite;
+  animation-delay: 0.35s;
+  transform-origin: 50% 80%;
+  will-change: transform;
+}
+
+.animate-date-ticket {
+  animation: dateStickerTicketFlutter 3.6s ease-in-out infinite;
+  animation-delay: 0.7s;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.animate-date-bouquet {
+  animation: dateStickerBouquetSway 3.3s ease-in-out infinite;
+  animation-delay: 0.2s;
+  transform-origin: 50% 90%;
+  will-change: transform;
+}
+
+.animate-date-toast {
+  animation: dateStickerToastClink 2.9s ease-in-out infinite;
+  animation-delay: 0.55s;
+  transform-origin: 50% 75%;
+  will-change: transform;
+}
+
+.animate-date-heart {
+  animation: dateStickerHeartPop 2.5s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Full-Screen Heart Flood Transition (Page 8 YES -> Page 9) */
+@keyframes heartFloodRise {
+  0% {
+    transform: translate3d(0, 108vh, 0) scale(0.45) rotate(var(--heart-rot-start, -12deg));
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--heart-drift-x, 18px), -18vh, 0) scale(1.25) rotate(var(--heart-rot-end, 14deg));
+    opacity: 0.95;
+  }
+}
+
+@keyframes heartFloodPackPop {
+  0% {
+    transform: translate3d(-50%, -30%, 0) scale(0) rotate(var(--heart-tilt, 0deg));
+    opacity: 0;
+  }
+  65% {
+    transform: translate3d(-50%, -50%, 0) scale(1.28) rotate(var(--heart-tilt, 0deg));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1.18) rotate(var(--heart-tilt, 0deg));
+    opacity: 1;
+  }
+}
+
+@keyframes heartFloodBackdropIn {
+  0%, 45% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-heart-flood-rise {
+  animation: heartFloodRise var(--rise-dur, 1150ms) cubic-bezier(0.22, 0.8, 0.36, 1) var(--rise-delay, 0ms) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-heart-flood-pack {
+  animation: heartFloodPackPop 560ms cubic-bezier(0.34, 1.45, 0.64, 1) var(--pack-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animate-heart-flood-backdrop {
+  animation: heartFloodBackdropIn 1320ms ease-in forwards;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-heart-flood-rise,
+  .animate-heart-flood-pack,
+  .animate-flower-flood-rise,
+  .animate-flower-flood-pack,
+  .animate-love-card-flutter,
+  .animate-love-card-pop,
+  .animate-cute-heart-burst,
+  .animate-cute-heart-float {
+    animation-duration: 250ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* Full-Screen Cute Flowers Flood Transition (Page 4 Love You Always -> Page 5) */
+@keyframes flowerFloodRise {
+  0% {
+    transform: translate3d(0, 108vh, 0) scale(0.4) rotate(var(--flower-rot-start, -25deg));
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--flower-drift-x, 20px), -20vh, 0) scale(1.22) rotate(var(--flower-rot-end, 95deg));
+    opacity: 0.96;
+  }
+}
+
+@keyframes flowerFloodPackBloom {
+  0% {
+    transform: translate3d(-50%, -40%, 0) scale(0) rotate(calc(var(--flower-tilt, 0deg) - 36deg));
+    opacity: 0;
+  }
+  68% {
+    transform: translate3d(-50%, -50%, 0) scale(1.3) rotate(calc(var(--flower-tilt, 0deg) + 6deg));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1.2) rotate(var(--flower-tilt, 0deg));
+    opacity: 1;
+  }
+}
+
+@keyframes flowerFloodBackdropIn {
+  0%, 42% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-flower-flood-rise {
+  animation: flowerFloodRise var(--rise-dur, 1200ms) cubic-bezier(0.22, 0.8, 0.36, 1) var(--rise-delay, 0ms) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-flower-flood-pack {
+  animation: flowerFloodPackBloom 580ms cubic-bezier(0.34, 1.48, 0.64, 1) var(--pack-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animate-flower-flood-backdrop {
+  animation: flowerFloodBackdropIn 1380ms ease-in forwards;
+  will-change: opacity;
+}
+
+/* Cute Small "LOVE" Cards Transition (Page 5 NEXT -> Page 6) */
+@keyframes loveCardFlutterRise {
+  0% {
+    transform: translate3d(-50%, 106vh, 0) scale(0.5) rotate(var(--card-rot-start, -14deg));
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  55% {
+    transform: translate3d(calc(-50% + var(--card-sway-x, 20px)), 44vh, 0) scale(1.04) rotate(var(--card-rot-mid, 9deg));
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(calc(-50% - var(--card-sway-x, 20px) * 0.5), -18vh, 0) scale(0.96) rotate(var(--card-rot-end, -11deg));
+    opacity: 0.95;
+  }
+}
+
+@keyframes loveCardSpringPop {
+  0% {
+    transform: translate3d(-50%, calc(-50% + 34px), 0) scale(0) rotate(calc(var(--card-tilt, 0deg) - 18deg));
+    opacity: 0;
+  }
+  64% {
+    transform: translate3d(-50%, calc(-50% - 5px), 0) scale(1.12) rotate(calc(var(--card-tilt, 0deg) + 4deg));
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(-50%, -50%, 0) scale(0.97) rotate(calc(var(--card-tilt, 0deg) - 2deg));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1.02) rotate(var(--card-tilt, 0deg));
+    opacity: 1;
+  }
+}
+
+@keyframes loveCardsBackdropIn {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0.98;
+  }
+}
+
+.animate-love-card-flutter {
+  animation: loveCardFlutterRise var(--flutter-dur, 1380ms) cubic-bezier(0.22, 0.8, 0.36, 1) var(--flutter-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animate-love-card-pop {
+  animation: loveCardSpringPop 560ms cubic-bezier(0.34, 1.48, 0.64, 1) var(--pop-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animate-love-cards-backdrop {
+  animation: loveCardsBackdropIn 1450ms ease-out forwards;
+  will-change: opacity;
+}
+
+/* Cute Kawaii Hearts Celebration (Page 7 "OUR LOVE STORY" -> Page 8) */
+@keyframes cuteHeartBurstOut {
+  0% {
+    transform: translate3d(-50%, -50%, 0) scale(0.2) rotate(var(--burst-rot-start, -14deg));
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  58% {
+    transform: translate3d(
+        calc(-50% + var(--burst-tx, 0vw) * 0.68),
+        calc(-50% + var(--burst-ty, -36vh) * 0.74),
+        0
+      )
+      scale(var(--burst-scale, 1.06))
+      rotate(var(--burst-rot-mid, 9deg));
+    opacity: 1;
+  }
+  84% {
+    opacity: 0.94;
+  }
+  100% {
+    transform: translate3d(
+        calc(-50% + var(--burst-tx, 0vw)),
+        calc(-50% + var(--burst-ty, -36vh)),
+        0
+      )
+      scale(calc(var(--burst-scale, 1.06) * 0.84))
+      rotate(var(--burst-rot-end, -11deg));
+    opacity: 0;
+  }
+}
+
+@keyframes cuteHeartFloatPop {
+  0% {
+    transform: translate3d(-50%, calc(-50% + 40px), 0) scale(0) rotate(var(--float-rot-start, -14deg));
+    opacity: 0;
+  }
+  30% {
+    transform: translate3d(-50%, -50%, 0) scale(1.12) rotate(var(--float-rot-mid, 8deg));
+    opacity: 1;
+  }
+  74% {
+    transform: translate3d(
+        calc(-50% + var(--float-sway-x, 18px)),
+        calc(-50% - 64px),
+        0
+      )
+      scale(1.02)
+      rotate(calc(var(--float-rot-mid, 8deg) * -0.65));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(
+        calc(-50% + var(--float-sway-x, 18px) * 1.35),
+        calc(-50% - 132px),
+        0
+      )
+      scale(0.8)
+      rotate(var(--float-rot-end, 12deg));
+    opacity: 0;
+  }
+}
+
+.animate-cute-heart-burst {
+  animation: cuteHeartBurstOut var(--burst-dur, 1120ms) cubic-bezier(0.2, 0.85, 0.34, 1) var(--burst-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animate-cute-heart-float {
+  animation: cuteHeartFloatPop var(--float-dur, 1200ms) cubic-bezier(0.24, 0.86, 0.36, 1) var(--float-delay, 0ms) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}

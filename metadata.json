@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Remix Remix Remix Remix Remix Scrapbook Message - You\u0027ve Got a Message",
+  "description": "An authentic scrapbook-style hero and interactive keepsake card with hand-crafted paper cutouts, gingham patterns, and charming animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
