@@ -8,6 +8,8 @@ export default function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store');
   res.status(200).json({
     storage: 'blob',
-    blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID),
+    hasReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    hasStoreId: Boolean(process.env.BLOB_STORE_ID),
   });
 }

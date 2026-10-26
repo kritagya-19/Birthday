@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sanitizeSlug } from '../../lib/shareHelpers';
-import { readShareFromBlob } from '../../lib/blobShareStore';
+import { sanitizeSlug } from '../lib/shareHelpers';
+import { isBlobConfigured, readShareFromBlob } from '../lib/blobShareStore';
 
 /**
- * GET /api/shares/:slug — public partner view payload (no editToken).
+ * GET /api/share-get?slug=... — public partner view payload (no editToken).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -12,10 +12,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (!isBlobConfigured()) {
       res.status(503).json({
         error:
-          'Share storage is not configured on this deployment. Ask the creator to connect Vercel Blob and save again.',
+          'Share storage is not configured on this deployment. Connect Vercel Blob and redeploy.',
       });
       return;
     }

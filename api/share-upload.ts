@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
     res.status(503).json({
       error:
         'Share storage is not configured. In the Vercel dashboard, open Storage → create a Blob store → connect it to this project, then redeploy.',
@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           throw new Error('Upload path does not match the share link name.');
         }
 
-        const existing = await readShareFromBlob(slug);
+        const existing = await readShareFromBlob(slug).catch(() => null);
         if (existing?.editToken && existing.editToken !== editToken) {
           throw new Error(
             'This custom link name is already taken. Try making it unique (for example, add initials or a special date)!'

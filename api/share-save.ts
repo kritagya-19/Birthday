@@ -4,13 +4,12 @@ import {
   generateRandomSlug,
   normalizeEditToken,
   sanitizeSlug,
-} from '../../lib/shareHelpers';
-import { readShareFromBlob, writeShareToBlob } from '../../lib/blobShareStore';
+} from '../lib/shareHelpers';
+import { isBlobConfigured, readShareFromBlob, writeShareToBlob } from '../lib/blobShareStore';
 
 /**
- * POST /api/shares
- * - allocateOnly: reserve/validate a slug without uploading the full payload
- * - with payload: save directly (works for smaller surprises under the body limit)
+ * POST /api/share-save
+ * Allocates a slug and (when payload is present) writes the surprise to Blob.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -19,10 +18,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (!isBlobConfigured()) {
       res.status(503).json({
         error:
-          'Share storage is not configured. In the Vercel dashboard, open Storage → create a Blob store → connect it to this project, then redeploy.',
+          'Share storage is not configured. Connect the Blob store to this project (Production + Preview), then Redeploy.',
       });
       return;
     }
@@ -43,7 +42,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let slug = sanitizeSlug(body?.slug);
     if (!slug) {
       slug = generateRandomSlug();
-      // Avoid colliding with an existing public share
       for (let i = 0; i < 8; i++) {
         const existing = await readShareFromBlob(slug);
         if (!existing) break;

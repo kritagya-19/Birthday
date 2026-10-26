@@ -167,9 +167,18 @@ async function saveSurpriseShareViaFilesystem(params: {
   };
 }
 
+async function readApiError(res: Response): Promise<string> {
+  const data = (await res.json().catch(() => ({}))) as { error?: string };
+  if (data.error) return data.error;
+  if (res.status === 404) {
+    return 'Share API is missing on this deploy. Push the latest code to GitHub and Redeploy on Vercel.';
+  }
+  return `Could not save surprise (HTTP ${res.status}). Push the latest code and Redeploy.`;
+}
+
 /**
- * Vercel path: reserve/validate slug, then upload the full JSON via Blob client upload
- * so photo-heavy payloads are not limited by the 4.5MB serverless body cap.
+ * Vercel path: save JSON to Blob on the server. If the payload is too large for
+ * the function body limit, fall back to a client Blob upload.
  */
 async function saveSurpriseShareViaBlob(params: {
   slug?: string;
@@ -178,7 +187,36 @@ async function saveSurpriseShareViaBlob(params: {
 }): Promise<{ slug: string; savedAt: string; shareUrl: string }> {
   const desiredSlug = params.slug !== undefined ? sanitizeCustomSlug(params.slug) : '';
 
-  const reserveRes = await fetch('/api/shares', {
+  const saveRes = await fetch('/api/share-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      slug: desiredSlug || undefined,
+      editToken: params.editToken,
+      payload: params.payload,
+    }),
+  });
+
+  if (saveRes.ok) {
+    const data = (await saveRes.json().catch(() => ({}))) as {
+      slug?: string;
+      savedAt?: string;
+    };
+    if (data.slug) {
+      return {
+        slug: data.slug,
+        savedAt: data.savedAt || new Date().toISOString(),
+        shareUrl: buildShareUrl(data.slug),
+      };
+    }
+  }
+
+  const tooLarge = saveRes.status === 413;
+  if (!tooLarge && !saveRes.ok) {
+    throw new Error(await readApiError(saveRes));
+  }
+
+  const reserveRes = await fetch('/api/share-save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -196,7 +234,7 @@ async function saveSurpriseShareViaBlob(params: {
   if (!reserveRes.ok || !reserveData.slug) {
     throw new Error(
       reserveData.error ||
-        'Could not prepare surprise link. If this is a new Vercel deploy, connect a Blob store under Storage and redeploy.'
+        'Could not prepare surprise link. Push the latest code to GitHub, then Redeploy on Vercel.'
     );
   }
 
@@ -260,7 +298,7 @@ export async function fetchSurpriseShare(slug: string): Promise<{
   savedAt: string;
   payload: SharedSurprisePayload;
 }> {
-  const res = await fetch(`/api/shares/${encodeURIComponent(slug)}`, {
+  const res = await fetch(`/api/share-get?slug=${encodeURIComponent(slug)}`, {
     method: 'GET',
     headers: { Accept: 'application/json' },
   });
