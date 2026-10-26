@@ -52,8 +52,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       return;
     }
-    if (!slug) {
-      slug = generateRandomSlug();
+
+    if (!body?.slug) {
       for (let i = 0; i < 8; i++) {
         const existing = await readShareFromBlob(slug);
         if (!existing) break;
@@ -92,8 +92,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       payload: body.payload,
     };
 
-    await writeShareToBlob(record);
-    res.status(200).json({ slug, savedAt });
+    try {
+      await writeShareToBlob(record);
+      res.status(200).json({ slug, savedAt, storage: 'blob' });
+    } catch (blobErr) {
+      console.warn('writeShareToBlob warning (falling back to client storage):', blobErr);
+      res.status(200).json({
+        slug,
+        savedAt,
+        storage: 'client',
+        notice: 'Blob storage write failed; surprise saved via shareable link.',
+      });
+    }
   } catch (err) {
     console.error('Failed to save shared surprise:', err);
     res.status(500).json({

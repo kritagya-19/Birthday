@@ -57,6 +57,5 @@ export async function writeShareToBlob(record: StoredShareRecord): Promise<void>
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json',
-    cacheControlMaxAge: 0,
   });
 }

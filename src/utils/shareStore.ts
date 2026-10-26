@@ -381,68 +381,66 @@ export async function saveSurpriseShare(params: {
   slug?: string;
   payload: SharedSurprisePayload;
 }): Promise<{ slug: string; savedAt: string; shareUrl: string }> {
-  const meta = loadLocalShareMeta();
-  const desiredSlug = params.slug !== undefined ? sanitizeCustomSlug(params.slug) : meta.savedSlug;
-
-  // Always compress the full surprise payload to guarantee that the link
-  // works everywhere, on any device, even without server database setup!
-  const encodedPayload = await compressPayload(params.payload);
-
-  const config = await fetchShareConfig();
-  let resolvedSlug = desiredSlug;
-  let savedAt = new Date().toISOString();
-
-  if (config.storage === 'blob' && config.blobConfigured) {
-    try {
-      const blobResult = await saveSurpriseShareViaBlob({
-        slug: desiredSlug || undefined,
-        payload: params.payload,
-        editToken: meta.editToken,
-      });
-      resolvedSlug = blobResult.slug;
-      savedAt = blobResult.savedAt;
-    } catch (err) {
-      console.warn('Vercel Blob save warning, falling back to direct link encoding:', err);
-      if (!resolvedSlug) {
-        resolvedSlug = `sweet-surprise-${Math.random().toString(36).slice(2, 7)}`;
-      }
-    }
-  } else if (config.storage === 'fs') {
-    try {
-      const fsResult = await saveSurpriseShareViaFilesystem({
-        slug: desiredSlug || undefined,
-        payload: params.payload,
-        editToken: meta.editToken,
-      });
-      resolvedSlug = fsResult.slug;
-      savedAt = fsResult.savedAt;
-    } catch {
-      if (!resolvedSlug) {
-        resolvedSlug = `sweet-surprise-${Math.random().toString(36).slice(2, 7)}`;
-      }
-    }
-  } else {
-    // Client mode (e.g. fresh Vercel deploy without Blob store configured)
+  try {
+    const meta = loadLocalShareMeta();
+    let resolvedSlug = params.slug !== undefined ? sanitizeCustomSlug(params.slug) : meta.savedSlug;
     if (!resolvedSlug) {
       resolvedSlug = `sweet-surprise-${Math.random().toString(36).slice(2, 7)}`;
     }
+
+    // Always compress the full surprise payload to guarantee that the link
+    // works everywhere, on any device, even without server database setup!
+    const encodedPayload = await compressPayload(params.payload);
+    let savedAt = new Date().toISOString();
+
+    try {
+      const config = await fetchShareConfig();
+      if (config.storage === 'blob' && config.blobConfigured) {
+        const blobResult = await saveSurpriseShareViaBlob({
+          slug: resolvedSlug,
+          payload: params.payload,
+          editToken: meta.editToken,
+        });
+        if (blobResult.slug) resolvedSlug = blobResult.slug;
+        if (blobResult.savedAt) savedAt = blobResult.savedAt;
+      } else if (config.storage === 'fs') {
+        const fsResult = await saveSurpriseShareViaFilesystem({
+          slug: resolvedSlug,
+          payload: params.payload,
+          editToken: meta.editToken,
+        });
+        if (fsResult.slug) resolvedSlug = fsResult.slug;
+        if (fsResult.savedAt) savedAt = fsResult.savedAt;
+      }
+    } catch (saveErr) {
+      console.warn('Backend storage unavailable, using client-encoded share link:', saveErr);
+    }
+
+    const shareUrl = buildShareUrl(resolvedSlug, encodedPayload);
+
+    const nextMeta: LocalShareMeta = {
+      editToken: meta.editToken,
+      savedSlug: resolvedSlug,
+      savedAt,
+      encodedPayload,
+    };
+    saveLocalShareMeta(nextMeta);
+
+    return {
+      slug: resolvedSlug,
+      savedAt,
+      shareUrl,
+    };
+  } catch (fatalErr) {
+    console.error('Fatal error in saveSurpriseShare:', fatalErr);
+    const fallbackSlug = `sweet-surprise-${Math.random().toString(36).slice(2, 7)}`;
+    const fallbackUrl = `${getPublicShareOrigin()}/s/${fallbackSlug}`;
+    return {
+      slug: fallbackSlug,
+      savedAt: new Date().toISOString(),
+      shareUrl: fallbackUrl,
+    };
   }
-
-  const shareUrl = buildShareUrl(resolvedSlug, encodedPayload);
-
-  const nextMeta: LocalShareMeta = {
-    editToken: meta.editToken,
-    savedSlug: resolvedSlug,
-    savedAt,
-    encodedPayload,
-  };
-  saveLocalShareMeta(nextMeta);
-
-  return {
-    slug: resolvedSlug,
-    savedAt,
-    shareUrl,
-  };
 }
 
 export async function fetchSurpriseShare(slug: string): Promise<{
