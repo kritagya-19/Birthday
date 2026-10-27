@@ -208,6 +208,34 @@ export const DEFAULT_ALL_PAGES_TEXTS: AllPagesTexts = {
   },
 };
 
+export const AVAILABLE_COUPLE_PHOTOS = [
+  '/assets/images/photo_6267218413381948578_x.jpg',
+  '/assets/images/photo_6267218413381948579_y.jpg',
+  '/assets/images/photo_6267218413381948580_y.jpg',
+  '/assets/images/photo_6267218413381948581_y.jpg',
+  '/assets/images/photo_6267218413381948582_x.jpg',
+  '/assets/images/photo_6267218413381948583_y.jpg',
+  '/assets/images/photo_6267218413381948584_y.jpg',
+  '/assets/images/photo_6267218413381948585_y.jpg',
+  '/assets/images/photo_6267218413381948586_y.jpg',
+  '/assets/images/photo_6267218413381948587_y.jpg',
+  '/assets/images/photo_6267218413381948588_x.jpg',
+  '/assets/images/photo_6267218413381948589_y.jpg',
+  '/assets/images/photo_6267218413381948590_x.jpg',
+  '/assets/images/photo_6267218413381948591_y.jpg',
+  '/assets/images/photo_6267218413381948592_y.jpg',
+  '/assets/images/photo_6267218413381948593_y.jpg',
+  '/assets/images/photo_6267218413381948594_y.jpg',
+  '/assets/images/photo_6267218413381948595_y.jpg',
+  '/assets/images/photo_6267218413381948596_y.jpg',
+  '/assets/images/photo_6267218413381948597_y.jpg',
+  '/assets/images/photo_6267218413381948598_y.jpg',
+  '/assets/images/photo_6267218413381948599_y.jpg',
+  '/assets/images/photo_6267218413381948601_y.jpg',
+  '/assets/images/photo_6267218413381948602_y.jpg',
+  '/assets/images/photo_6267218413381948603_y.jpg',
+];
+
 export const DEFAULT_ALL_PAGES_PHOTOS: AllPagesPhotos = {
   page1: {
     sticker: '/assets/aistudio/bubu_dudu_love_page1.gif',
@@ -216,34 +244,34 @@ export const DEFAULT_ALL_PAGES_PHOTOS: AllPagesPhotos = {
     sticker: 'https://media.tenor.com/-aW73OVUtyYAAAAi/tkthao219-bubududu.gif',
   },
   page3: {
-    main: '/assets/aistudio/photo_main_selfie.png',
-    thumb1: '/assets/aistudio/photo_tiger_mask.png',
-    thumb2: '/assets/aistudio/photo_roses.png',
-    thumb3: '/assets/aistudio/photo_popcorn.png',
+    main: '/assets/images/photo_6267218413381948603_y.jpg',
+    thumb1: '/assets/images/photo_6267218413381948589_y.jpg',
+    thumb2: '/assets/images/photo_6267218413381948578_x.jpg',
+    thumb3: '/assets/images/photo_6267218413381948582_x.jpg',
   },
   page4: {
-    main: '/assets/aistudio/photo_page4_flower_girl.png',
-    polaroid1: '/assets/aistudio/photo_page4_pure1.png',
-    polaroid2: '/assets/aistudio/photo_page4_pure2.png',
-    polaroid3: '/assets/aistudio/photo_page4_pure3.png',
+    main: '/assets/images/photo_6267218413381948587_y.jpg',
+    polaroid1: '/assets/images/photo_6267218413381948584_y.jpg',
+    polaroid2: '/assets/images/photo_6267218413381948583_y.jpg',
+    polaroid3: '/assets/images/photo_6267218413381948594_y.jpg',
   },
   page5: {
-    mirror: '/assets/aistudio/photo_page5_mirror.png',
-    dinner: '/assets/aistudio/photo_page5_dinner.png',
-    roses: '/assets/aistudio/photo_roses.png',
-    kiss: '/assets/aistudio/photo_page6_kiss.png',
-    selfie: '/assets/aistudio/photo_main_selfie.png',
+    mirror: '/assets/images/photo_6267218413381948588_x.jpg',
+    dinner: '/assets/images/photo_6267218413381948580_y.jpg',
+    roses: '/assets/images/photo_6267218413381948593_y.jpg',
+    kiss: '/assets/images/photo_6267218413381948581_y.jpg',
+    selfie: '/assets/images/photo_6267218413381948590_x.jpg',
   },
   page6: {
-    main: '/assets/aistudio/photo_page6_kiss.png',
+    main: '/assets/images/photo_6267218413381948592_y.jpg',
   },
   page7: {
-    p1: '/assets/aistudio/photo_p7_1.png',
-    p2: '/assets/aistudio/photo_p7_2.png',
-    p3: '/assets/aistudio/photo_p7_3.png',
-    p4: '/assets/aistudio/photo_p7_4.png',
-    p5: '/assets/aistudio/photo_p7_5.png',
-    p6: '/assets/aistudio/photo_p7_6.png',
+    p1: '/assets/images/photo_6267218413381948579_y.jpg',
+    p2: '/assets/images/photo_6267218413381948586_y.jpg',
+    p3: '/assets/images/photo_6267218413381948595_y.jpg',
+    p4: '/assets/images/photo_6267218413381948596_y.jpg',
+    p5: '/assets/images/photo_6267218413381948598_y.jpg',
+    p6: '/assets/images/photo_6267218413381948601_y.jpg',
   },
   page8: {
     sticker: '/assets/aistudio/dudu_cry_page8.gif',
@@ -260,18 +288,61 @@ const PHOTOS_IDB_NAME = 'scrapbook_mail_photos_idb_v1';
 const PHOTOS_IDB_STORE = 'page_photos';
 const PHOTOS_IDB_RECORD_KEY = 'all_pages_photos';
 
+function cleanLegacyPlaceholder(savedUrl?: string, defaultUrl?: string): string {
+  if (!savedUrl) return defaultUrl || '';
+  // Automatically migrate older AI Studio placeholder paths to the new images
+  if (savedUrl.startsWith('/assets/aistudio/photo_')) {
+    return defaultUrl || '';
+  }
+  return savedUrl;
+}
+
 function mergePhotosWithDefaults(parsed?: Partial<AllPagesPhotos> | null): AllPagesPhotos {
   if (!parsed) return DEFAULT_ALL_PAGES_PHOTOS;
   return {
-    page1: { ...DEFAULT_ALL_PAGES_PHOTOS.page1, ...parsed.page1 },
-    page2: { ...DEFAULT_ALL_PAGES_PHOTOS.page2, ...parsed.page2 },
-    page3: { ...DEFAULT_ALL_PAGES_PHOTOS.page3, ...parsed.page3 },
-    page4: { ...DEFAULT_ALL_PAGES_PHOTOS.page4, ...parsed.page4 },
-    page5: { ...DEFAULT_ALL_PAGES_PHOTOS.page5, ...parsed.page5 },
-    page6: { ...DEFAULT_ALL_PAGES_PHOTOS.page6, ...parsed.page6 },
-    page7: { ...DEFAULT_ALL_PAGES_PHOTOS.page7, ...parsed.page7 },
-    page8: { ...DEFAULT_ALL_PAGES_PHOTOS.page8, ...parsed.page8 },
-    page9: { ...DEFAULT_ALL_PAGES_PHOTOS.page9, ...parsed.page9 },
+    page1: {
+      sticker: cleanLegacyPlaceholder(parsed.page1?.sticker, DEFAULT_ALL_PAGES_PHOTOS.page1.sticker),
+    },
+    page2: {
+      sticker: cleanLegacyPlaceholder(parsed.page2?.sticker, DEFAULT_ALL_PAGES_PHOTOS.page2.sticker),
+    },
+    page3: {
+      main: cleanLegacyPlaceholder(parsed.page3?.main, DEFAULT_ALL_PAGES_PHOTOS.page3.main),
+      thumb1: cleanLegacyPlaceholder(parsed.page3?.thumb1, DEFAULT_ALL_PAGES_PHOTOS.page3.thumb1),
+      thumb2: cleanLegacyPlaceholder(parsed.page3?.thumb2, DEFAULT_ALL_PAGES_PHOTOS.page3.thumb2),
+      thumb3: cleanLegacyPlaceholder(parsed.page3?.thumb3, DEFAULT_ALL_PAGES_PHOTOS.page3.thumb3),
+    },
+    page4: {
+      main: cleanLegacyPlaceholder(parsed.page4?.main, DEFAULT_ALL_PAGES_PHOTOS.page4.main),
+      polaroid1: cleanLegacyPlaceholder(parsed.page4?.polaroid1, DEFAULT_ALL_PAGES_PHOTOS.page4.polaroid1),
+      polaroid2: cleanLegacyPlaceholder(parsed.page4?.polaroid2, DEFAULT_ALL_PAGES_PHOTOS.page4.polaroid2),
+      polaroid3: cleanLegacyPlaceholder(parsed.page4?.polaroid3, DEFAULT_ALL_PAGES_PHOTOS.page4.polaroid3),
+    },
+    page5: {
+      mirror: cleanLegacyPlaceholder(parsed.page5?.mirror, DEFAULT_ALL_PAGES_PHOTOS.page5.mirror),
+      dinner: cleanLegacyPlaceholder(parsed.page5?.dinner, DEFAULT_ALL_PAGES_PHOTOS.page5.dinner),
+      roses: cleanLegacyPlaceholder(parsed.page5?.roses, DEFAULT_ALL_PAGES_PHOTOS.page5.roses),
+      kiss: cleanLegacyPlaceholder(parsed.page5?.kiss, DEFAULT_ALL_PAGES_PHOTOS.page5.kiss),
+      selfie: cleanLegacyPlaceholder(parsed.page5?.selfie, DEFAULT_ALL_PAGES_PHOTOS.page5.selfie),
+    },
+    page6: {
+      main: cleanLegacyPlaceholder(parsed.page6?.main, DEFAULT_ALL_PAGES_PHOTOS.page6.main),
+    },
+    page7: {
+      p1: cleanLegacyPlaceholder(parsed.page7?.p1, DEFAULT_ALL_PAGES_PHOTOS.page7.p1),
+      p2: cleanLegacyPlaceholder(parsed.page7?.p2, DEFAULT_ALL_PAGES_PHOTOS.page7.p2),
+      p3: cleanLegacyPlaceholder(parsed.page7?.p3, DEFAULT_ALL_PAGES_PHOTOS.page7.p3),
+      p4: cleanLegacyPlaceholder(parsed.page7?.p4, DEFAULT_ALL_PAGES_PHOTOS.page7.p4),
+      p5: cleanLegacyPlaceholder(parsed.page7?.p5, DEFAULT_ALL_PAGES_PHOTOS.page7.p5),
+      p6: cleanLegacyPlaceholder(parsed.page7?.p6, DEFAULT_ALL_PAGES_PHOTOS.page7.p6),
+    },
+    page8: {
+      sticker: cleanLegacyPlaceholder(parsed.page8?.sticker, DEFAULT_ALL_PAGES_PHOTOS.page8.sticker),
+    },
+    page9: {
+      leftPhoto: cleanLegacyPlaceholder(parsed.page9?.leftPhoto, DEFAULT_ALL_PAGES_PHOTOS.page9.leftPhoto),
+      rightPhoto: cleanLegacyPlaceholder(parsed.page9?.rightPhoto, DEFAULT_ALL_PAGES_PHOTOS.page9.rightPhoto),
+    },
   };
 }
 

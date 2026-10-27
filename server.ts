@@ -40,7 +40,15 @@ interface StoredShareRecord {
 async function startServer() {
   const app = express();
 
+  app.use((_req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    next();
+  });
+
   app.use(express.json({ limit: '65mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '65mb' }));
 
   app.get('/api/share-config', (_req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -174,7 +182,9 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Scrapbook Mail server listening on http://0.0.0.0:${PORT}`);
+    console.log(`\n  Scrapbook Mail server running at:`);
+    console.log(`  > Local:   http://localhost:${PORT}`);
+    console.log(`  > Network: http://127.0.0.1:${PORT}\n`);
   });
 }
 

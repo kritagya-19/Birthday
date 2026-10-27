@@ -489,6 +489,22 @@ export default function App() {
             {sharedError ||
               'This custom surprise link could not be found. Please double-check the URL that was shared with you.'}
           </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              Try Again
+            </button>
+            <a
+              href="/"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-white shadow-sm transition-transform hover:scale-103 cursor-pointer"
+              style={{ backgroundColor: currentTheme.btnBg }}
+            >
+              Create Your Own Surprise 💌
+            </a>
+          </div>
         </div>
       </div>
     );

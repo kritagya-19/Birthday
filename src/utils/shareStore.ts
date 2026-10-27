@@ -16,6 +16,8 @@ interface LocalShareMeta {
   savedSlug: string;
   savedAt: string;
   encodedPayload?: string;
+  storageMode?: 'fs' | 'blob' | 'client';
+  backendSaved?: boolean;
 }
 
 interface ShareConfig {
@@ -43,6 +45,8 @@ export function loadLocalShareMeta(): LocalShareMeta {
           savedSlug: parsed.savedSlug || '',
           savedAt: parsed.savedAt || '',
           encodedPayload: parsed.encodedPayload || '',
+          storageMode: parsed.storageMode,
+          backendSaved: parsed.backendSaved,
         };
       }
     }
@@ -55,6 +59,8 @@ export function loadLocalShareMeta(): LocalShareMeta {
     savedSlug: '',
     savedAt: '',
     encodedPayload: '',
+    storageMode: 'client',
+    backendSaved: false,
   };
   saveLocalShareMeta(fresh);
   return fresh;
@@ -182,17 +188,31 @@ export async function extractPayloadFromLocation(): Promise<SharedSurprisePayloa
 }
 
 /**
- * Extracts a shared surprise slug if the current URL is `/s/:slug` or `/?s=:slug`,
+ * Extracts a shared surprise slug if the current URL is `/s/:slug`, `#/s/:slug`, or `/?s=:slug`,
  * or if a direct payload is attached in the URL hash or parameters.
  */
 export function getShareSlugFromLocation(): string | null {
   if (typeof window === 'undefined') return null;
 
+  // 1. Standard path: /s/:slug
   const pathMatch = window.location.pathname.match(/^\/s\/([a-zA-Z0-9_-]+)\/?$/);
   if (pathMatch?.[1]) {
     return sanitizeCustomSlug(pathMatch[1]);
   }
 
+  // 2. Hash routing: #/s/:slug or #s=:slug
+  if (window.location.hash) {
+    const hashRouteMatch = window.location.hash.match(/^#\/s\/([a-zA-Z0-9_-]+)\/?/);
+    if (hashRouteMatch?.[1]) {
+      return sanitizeCustomSlug(hashRouteMatch[1]);
+    }
+    const hashParamMatch = window.location.hash.match(/[#&]s=([a-zA-Z0-9_-]+)/);
+    if (hashParamMatch?.[1]) {
+      return sanitizeCustomSlug(hashParamMatch[1]);
+    }
+  }
+
+  // 3. Query string: ?s=:slug
   const params = new URLSearchParams(window.location.search);
   const querySlug = params.get('s');
   if (querySlug) {
@@ -200,7 +220,7 @@ export function getShareSlugFromLocation(): string | null {
     if (cleaned) return cleaned;
   }
 
-  // If a payload hash or query exists, treat as a shared link
+  // 4. If a direct compressed payload hash or query exists, treat as a shared link
   if (
     (window.location.hash && (window.location.hash.includes('d=') || window.location.hash.length > 20)) ||
     params.has('d') ||
@@ -215,12 +235,16 @@ export function getShareSlugFromLocation(): string | null {
 /**
  * Computes the public origin so links copied from AI Studio's dev preview (`ais-dev-...`)
  * automatically use the public shared app URL (`ais-pre-...`) accessible to the partner on any device.
+ * Also normalizes Windows 0.0.0.0 addresses to localhost so shared links work reliably.
  */
 export function getPublicShareOrigin(): string {
   if (typeof window === 'undefined') return '';
-  const origin = window.location.origin;
+  let origin = window.location.origin;
   if (origin.startsWith('https://ais-dev-')) {
-    return origin.replace('https://ais-dev-', 'https://ais-pre-');
+    origin = origin.replace('https://ais-dev-', 'https://ais-pre-');
+  }
+  if (origin.includes('0.0.0.0')) {
+    origin = origin.replace('0.0.0.0', 'localhost');
   }
   return origin;
 }
@@ -228,8 +252,12 @@ export function getPublicShareOrigin(): string {
 export function buildShareUrl(slug: string, encodedData?: string): string {
   const origin = getPublicShareOrigin();
   const cleanSlug = encodeURIComponent(slug || 'surprise');
-  const data = encodedData !== undefined ? encodedData : loadLocalShareMeta().encodedPayload;
-  if (data) {
+  const meta = loadLocalShareMeta();
+  const data = encodedData !== undefined ? encodedData : meta.encodedPayload;
+
+  // When saved on the server (fs or blob), provide a clean, short URL so messaging apps
+  // never truncate the link. Only append #d=... when purely in client-only fallback mode.
+  if (meta.storageMode === 'client' && data) {
     return `${origin}/s/${cleanSlug}#d=${data}`;
   }
   return `${origin}/s/${cleanSlug}`;
@@ -245,8 +273,14 @@ async function fetchShareConfig(): Promise<ShareConfig> {
       return { storage: 'client' };
     }
     const data = (await res.json()) as Partial<ShareConfig>;
+    const storage: 'fs' | 'blob' | 'client' =
+      data.storage === 'fs'
+        ? 'fs'
+        : data.storage === 'blob' && data.blobConfigured
+        ? 'blob'
+        : 'client';
     return {
-      storage: data.storage === 'blob' && data.blobConfigured ? 'blob' : 'client',
+      storage,
       blobConfigured: Boolean(data.blobConfigured),
     };
   } catch {
@@ -388,10 +422,11 @@ export async function saveSurpriseShare(params: {
       resolvedSlug = `sweet-surprise-${Math.random().toString(36).slice(2, 7)}`;
     }
 
-    // Always compress the full surprise payload to guarantee that the link
-    // works everywhere, on any device, even without server database setup!
+    // Always compress backup payload for client offline support
     const encodedPayload = await compressPayload(params.payload);
     let savedAt = new Date().toISOString();
+    let backendSaved = false;
+    let activeStorage: 'fs' | 'blob' | 'client' = 'client';
 
     try {
       const config = await fetchShareConfig();
@@ -403,6 +438,8 @@ export async function saveSurpriseShare(params: {
         });
         if (blobResult.slug) resolvedSlug = blobResult.slug;
         if (blobResult.savedAt) savedAt = blobResult.savedAt;
+        backendSaved = true;
+        activeStorage = 'blob';
       } else if (config.storage === 'fs') {
         const fsResult = await saveSurpriseShareViaFilesystem({
           slug: resolvedSlug,
@@ -411,20 +448,24 @@ export async function saveSurpriseShare(params: {
         });
         if (fsResult.slug) resolvedSlug = fsResult.slug;
         if (fsResult.savedAt) savedAt = fsResult.savedAt;
+        backendSaved = true;
+        activeStorage = 'fs';
       }
     } catch (saveErr) {
       console.warn('Backend storage unavailable, using client-encoded share link:', saveErr);
     }
-
-    const shareUrl = buildShareUrl(resolvedSlug, encodedPayload);
 
     const nextMeta: LocalShareMeta = {
       editToken: meta.editToken,
       savedSlug: resolvedSlug,
       savedAt,
       encodedPayload,
+      storageMode: activeStorage,
+      backendSaved,
     };
     saveLocalShareMeta(nextMeta);
+
+    const shareUrl = buildShareUrl(resolvedSlug, encodedPayload);
 
     return {
       slug: resolvedSlug,
@@ -458,7 +499,33 @@ export async function fetchSurpriseShare(slug: string): Promise<{
     };
   }
 
-  // 2. Fetch from Vercel serverless endpoint (/api/share-get)
+  // 2. Fetch from Express dev/production server (/api/shares/:slug)
+  try {
+    const localRes = await fetch(`/api/shares/${encodeURIComponent(slug)}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+
+    if (localRes.ok) {
+      const data = (await localRes.json().catch(() => ({}))) as {
+        slug?: string;
+        savedAt?: string;
+        payload?: SharedSurprisePayload;
+      };
+
+      if (data.payload && data.slug) {
+        return {
+          slug: data.slug,
+          savedAt: data.savedAt || '',
+          payload: data.payload,
+        };
+      }
+    }
+  } catch {
+    // Fall through
+  }
+
+  // 3. Fetch from Vercel serverless endpoint (/api/share-get?slug=...)
   try {
     const res = await fetch(`/api/share-get?slug=${encodeURIComponent(slug)}`, {
       method: 'GET',
@@ -484,30 +551,22 @@ export async function fetchSurpriseShare(slug: string): Promise<{
     // Fall through
   }
 
-  // 3. Fallback for local Express dev server (/api/shares/:slug)
-  try {
-    const localRes = await fetch(`/api/shares/${encodeURIComponent(slug)}`, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-    });
-
-    if (localRes.ok) {
-      const data = (await localRes.json().catch(() => ({}))) as {
-        slug?: string;
-        savedAt?: string;
-        payload?: SharedSurprisePayload;
-      };
-
-      if (data.payload && data.slug) {
+  // 4. Local creator fallback (if opened on creator's machine where it was saved)
+  const localMeta = loadLocalShareMeta();
+  if (
+    localMeta.savedSlug &&
+    (localMeta.savedSlug.toLowerCase() === slug.toLowerCase() || slug === 'surprise')
+  ) {
+    if (localMeta.encodedPayload) {
+      const localPayload = await decompressPayload(localMeta.encodedPayload);
+      if (localPayload) {
         return {
-          slug: data.slug,
-          savedAt: data.savedAt || '',
-          payload: data.payload,
+          slug,
+          savedAt: localMeta.savedAt || new Date().toISOString(),
+          payload: localPayload,
         };
       }
     }
-  } catch {
-    // Fall through
   }
 
   throw new Error('Surprise link not found. Please make sure you copied the complete link.');

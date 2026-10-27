@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Type, ImagePlus, X, RotateCcw, Check, Upload, Images } from 'lucide-react';
 import { ColorTheme, THEMES } from '../theme/colorThemes';
 import { sounds } from '../utils/audio';
-import { readImageFileAsUrl } from '../utils/pageContentStore';
+import { readImageFileAsUrl, AVAILABLE_COUPLE_PHOTOS } from '../utils/pageContentStore';
 
 export interface TextFieldConfig<T extends { [K in keyof T]: string }> {
   key: keyof T;
@@ -236,6 +236,7 @@ export function PagePhotosModal<T extends { [K in keyof T]: string }>({
 }: PagePhotosModalProps<T>) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
+  const [pickerSlot, setPickerSlot] = useState<string | null>(null);
   const photosRef = useRef<T>(photos);
   photosRef.current = photos;
 
@@ -430,31 +431,98 @@ export function PagePhotosModal<T extends { [K in keyof T]: string }>({
                   </label>
                 </div>
 
-                <label
-                  className={`w-full py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-colors ${
-                    isUploading ? 'opacity-60 pointer-events-none' : 'cursor-pointer hover:bg-slate-50'
-                  }`}
-                  style={{
-                    color: theme.accentColor,
-                    borderColor: theme.borderHeader,
-                  }}
-                >
-                  <input
-                    type="file"
-                    accept={IMAGE_ACCEPT}
-                    onChange={(e) => handleSlotFileChange(slot.key, e)}
-                    disabled={isUploading}
-                    className="sr-only"
-                  />
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>
-                    {isSlotBusy
-                      ? 'Uploading...'
-                      : isCustom
-                      ? 'Change Photo'
-                      : 'Upload Photo'}
-                  </span>
-                </label>
+                <div className="flex items-center gap-1.5 w-full">
+                  <label
+                    className={`flex-1 py-2 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-colors ${
+                      isUploading ? 'opacity-60 pointer-events-none' : 'cursor-pointer hover:bg-slate-50'
+                    }`}
+                    style={{
+                      color: theme.accentColor,
+                      borderColor: theme.borderHeader,
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept={IMAGE_ACCEPT}
+                      onChange={(e) => handleSlotFileChange(slot.key, e)}
+                      disabled={isUploading}
+                      className="sr-only"
+                    />
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playPop();
+                      setPickerSlot((prev) => (prev === String(slot.key) ? null : String(slot.key)));
+                    }}
+                    className={`py-2 px-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 border transition-colors cursor-pointer ${
+                      pickerSlot === String(slot.key)
+                        ? 'bg-rose-50 border-rose-300 text-rose-700'
+                        : 'bg-white hover:bg-slate-50 text-slate-700 border-[#dacfb7]'
+                    }`}
+                    title="Choose from images folder"
+                  >
+                    <Images className="w-3.5 h-3.5" />
+                    <span>Gallery</span>
+                  </button>
+                </div>
+
+                {/* Quick picker from images folder */}
+                {pickerSlot === String(slot.key) && (
+                  <div className="mt-2 p-2 rounded-xl bg-slate-50 border border-slate-200 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between mb-1.5 px-0.5">
+                      <span className="text-[10px] font-bold text-slate-600">
+                        Pick a photo from images folder:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPickerSlot(null)}
+                        className="text-[10px] text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        ✕ Close
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                      {AVAILABLE_COUPLE_PHOTOS.map((photoUrl, pIdx) => {
+                        const isSelected = photos[slot.key] === photoUrl;
+                        return (
+                          <button
+                            key={photoUrl}
+                            type="button"
+                            onClick={() => {
+                              sounds.playClick();
+                              onChange({
+                                ...photosRef.current,
+                                [slot.key]: photoUrl,
+                              });
+                            }}
+                            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer ${
+                              isSelected
+                                ? 'border-[#e11d48] ring-2 ring-rose-200 scale-95'
+                                : 'border-transparent hover:border-slate-300'
+                            }`}
+                            title={`Select photo ${pIdx + 1}`}
+                          >
+                            <img
+                              src={photoUrl}
+                              alt={`Option ${pIdx + 1}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-rose-600/30 flex items-center justify-center">
+                                <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

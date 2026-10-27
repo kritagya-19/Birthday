@@ -75,7 +75,10 @@ export const SavePreviewSharePanel: React.FC<SavePreviewSharePanelProps> = ({
     const y = (rect.top + rect.height / 2) / window.innerHeight;
 
     sounds.playPop();
-    const result = await onSaveAll(savedSlug || undefined);
+    const targetSlug = customSlugInput.trim()
+      ? sanitizeCustomSlug(customSlugInput)
+      : (savedSlug || undefined);
+    const result = await onSaveAll(targetSlug);
     if (result) {
       sounds.playChime();
       firePaperConfetti(x, y, theme);
@@ -99,9 +102,23 @@ export const SavePreviewSharePanel: React.FC<SavePreviewSharePanelProps> = ({
   };
 
   const handleCopyShareLink = async () => {
-    if (!shareUrl) return;
     sounds.playPop();
-    const ok = await copyTextToClipboard(shareUrl);
+    let currentShareUrl = shareUrl;
+
+    const targetSlug = customSlugInput.trim()
+      ? sanitizeCustomSlug(customSlugInput)
+      : (savedSlug || undefined);
+
+    // If there are unsaved changes or new custom slug, automatically save first!
+    if (hasUnsavedChanges || !isSaved || (targetSlug && targetSlug !== savedSlug)) {
+      const res = await onSaveAll(targetSlug);
+      if (res?.shareUrl) {
+        currentShareUrl = res.shareUrl;
+      }
+    }
+
+    if (!currentShareUrl) return;
+    const ok = await copyTextToClipboard(currentShareUrl);
     if (ok) {
       setCopiedLink(true);
       window.setTimeout(() => setCopiedLink(false), 2400);
@@ -109,13 +126,27 @@ export const SavePreviewSharePanel: React.FC<SavePreviewSharePanelProps> = ({
   };
 
   const handleNativeShare = async () => {
-    if (!shareUrl || !canNativeShare) return;
+    if (!canNativeShare) return;
     sounds.playPop();
+    let currentShareUrl = shareUrl;
+
+    const targetSlug = customSlugInput.trim()
+      ? sanitizeCustomSlug(customSlugInput)
+      : (savedSlug || undefined);
+
+    if (hasUnsavedChanges || !isSaved || (targetSlug && targetSlug !== savedSlug)) {
+      const res = await onSaveAll(targetSlug);
+      if (res?.shareUrl) {
+        currentShareUrl = res.shareUrl;
+      }
+    }
+
+    if (!currentShareUrl) return;
     try {
       await navigator.share({
         title: 'A Special Birthday & Date Surprise For You 💌',
         text: 'Open this special surprise I made just for you ♥',
-        url: shareUrl,
+        url: currentShareUrl,
       });
     } catch {
       // User dismissed share sheet
