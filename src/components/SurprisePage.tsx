@@ -309,6 +309,7 @@ export const SurprisePage: React.FC<SurprisePageProps> = ({
                 }
               }}
               alt="Cute Bubu Dudu bear"
+              decoding="async"
               className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(20,40,70,0.2)]"
             />
           </div>
@@ -318,6 +319,7 @@ export const SurprisePage: React.FC<SurprisePageProps> = ({
             <img
               src="/assets/aistudio/Untitled_Design__4_-Photoroom_f0e4dcf9.png"
               alt="Scrapbook bottom torn paper design"
+              decoding="async"
               className="w-full h-full object-fill pointer-events-none select-none transition-[filter] duration-500 ease-out"
               style={{
                 filter: theme.scrapbookFilter || theme.balloonFilter || 'none',
