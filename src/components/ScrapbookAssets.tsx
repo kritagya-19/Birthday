@@ -146,10 +146,9 @@ export const ExclamationSticker: React.FC<StickerProps> = ({
  * Stars sticker - exact reproduction of the two 4-point blue sparkle stars
  * on a single organic cut-out off-white cardstock paper backing.
  */
-export const StarsSticker: React.FC<StickerProps> = ({
+export const StarsSticker: React.FC<Omit<StickerProps, 'bgColor'>> = ({
   className = '',
   accentColor = '#2b548e',
-  bgColor = '#faf6ea',
   onClick,
 }) => {
   return (

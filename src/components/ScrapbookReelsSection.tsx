@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
   Play,
-  Pause,
   Heart,
   MessageCircle,
   Share2,
@@ -13,7 +12,6 @@ import {
   Sparkles,
   Film,
   Instagram,
-  Check,
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 

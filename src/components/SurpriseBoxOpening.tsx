@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { sounds } from '../utils/audio';
 import { firePaperConfetti } from '../utils/confetti';
 import { ColorTheme, THEMES } from '../theme/colorThemes';
-import { Sparkles, Heart, Star, Gift, PartyPopper } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface SurpriseBoxOpeningProps {
   onComplete: () => void;

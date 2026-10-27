@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Heart, Link2, Loader2, Music } from 'lucide-react';
 import { ScrapbookHero } from './components/ScrapbookHero';
 import { SurprisePage } from './components/SurprisePage';
